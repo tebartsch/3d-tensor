@@ -35,60 +35,98 @@
                 slider_z_label.innerHTML = this.value;
             }
 
-            const camera = new THREE.PerspectiveCamera( 70, window.innerWidth / window.innerHeight, 0.01, 1000 );
+            const camera = new THREE.PerspectiveCamera( 70, window.innerWidth / window.innerHeight, 0.00000000001, 100000 );
             camera.lookAt(0, 0, 0);
             camera.position.z = 15;
 
             const scene = new THREE.Scene();
             scene.background = new THREE.Color( 0xffffff );
 
-            const renderer = new THREE.WebGLRenderer({alpha: true });
+            const renderer = new THREE.WebGLRenderer({alpha: true, antialias: true});
             renderer.setSize( window.innerWidth, window.innerHeight );
             renderer.setAnimationLoop( animation );
             document.body.appendChild( renderer.domElement );
 
-            let cols = 9;
-            let rows = 4;
-            let depth = 4;
+            let cols = 15;
+            let rows = 2;
+            let depth = 6;
 
             cube_dim = 0.4
 
-            const geometry = new THREE.BoxGeometry( cube_dim, cube_dim, cube_dim );
-            const material = new THREE.MeshMatcapMaterial();
+            const cube_geometry = new THREE.BoxGeometry( cube_dim, cube_dim, cube_dim );
+            const cube_material = new THREE.MeshMatcapMaterial({transparent: true, opacity: 0.9});
             let cubes = [];
 
-            var group = new THREE.Group();
-            scene.add(group);
+            var sub_group = new THREE.Group();
 
+            // Cubes
             for (let c = 0; c < cols; c++) {
                 cubes.push([])
                 for (let r = 0; r < rows; r++) {
                     cubes[c].push([])
                     for (let d = 0; d < depth; d++) {
-                        const cube = new THREE.Mesh( geometry, material );
+                        const cube = new THREE.Mesh( cube_geometry, cube_material );
                         cube.translateX( - cols / 2 + c + cube_dim);
                         cube.translateY( - rows / 2 + r + cube_dim);
                         cube.translateZ( - depth / 2 + d + cube_dim);
                         cubes[c][r].push(cube);
-                        group.add( cube );
+                        sub_group.add( cube );
                     }
                 }
             }
 
-            preset_angle_x = 0
-            preset_angle_y = 0
-            preset_angle_z = 0.0
+            // Sides
+            const thickness = 0.1;
+            const reduction = 0.25;
+            const distance = 0.25;
 
-            group.rotation.x = preset_angle_x
-            group.rotation.y = preset_angle_y
-            group.rotation.z = preset_angle_z
+            const side_x_geometry = new THREE.BoxGeometry( thickness, rows - reduction, depth - reduction);
+            const side_x_material = new THREE.MeshMatcapMaterial({transparent: true, opacity: 0.1});
+            const side_x_1 = new THREE.Mesh( side_x_geometry, side_x_material );
+            side_x_1.translateX(-(cols + distance) / 2);
+            sub_group.add( side_x_1 );
+            const side_x_2 = new THREE.Mesh( side_x_geometry, side_x_material );
+            side_x_2.translateX((cols + distance) / 2);
+            sub_group.add( side_x_2 );
+            const side_y_geometry = new THREE.BoxGeometry( cols - reduction, thickness, depth - reduction);
+            const side_y_material = new THREE.MeshMatcapMaterial({transparent: true, opacity: 0.1});
+            const side_y_1 = new THREE.Mesh( side_y_geometry, side_y_material );
+            side_y_1.translateY(-(rows + distance) / 2);
+            sub_group.add( side_y_1 );
+            const side_y_2 = new THREE.Mesh( side_y_geometry, side_y_material );
+            side_y_2.translateY((rows + distance) / 2);
+            sub_group.add( side_y_2 );
+            const side_z_geometry = new THREE.BoxGeometry( cols - reduction, rows - reduction, thickness);
+            const side_z_material = new THREE.MeshMatcapMaterial({transparent: true, opacity: 0.1});
+            const side_z_1 = new THREE.Mesh( side_z_geometry, side_z_material );
+            side_z_1.translateZ(-(depth + distance) / 2);
+            sub_group.add( side_z_1 );
+            const side_z_2 = new THREE.Mesh( side_z_geometry, side_z_material );
+            side_z_2.translateZ((depth + distance) / 2);
+            sub_group.add( side_z_2 );
+
+            // Multiply sub_group
+            var group = new THREE.Group();
+            for ( var i = -0.5; i < 0; i ++ ) {
+                var mesh = sub_group.clone();
+                mesh.position.set( 0, i * (rows + 5), 0 );
+                group.add( mesh );
+            }
+            group.add(sub_group);
+
+            scene.add(group);
+
+            // Rotate
+            preset_angle_x = 2 // 60
+            preset_angle_y = 0 // 0
+            preset_angle_z = 0 // 250
 
             function animation( time ) {
-                group.rotation.x = preset_angle_x + angle_x.value / 360 * (2 * 3.1459);
-                group.rotation.y = preset_angle_y + angle_y.value / 360 * (2 * 3.1459);
-                group.rotation.z = preset_angle_z + angle_z.value / 360 * (2 * 3.1459);
+                group.rotation.x = (preset_angle_x + angle_x.value) / 360 * (3.1459);
+                group.rotation.y = (preset_angle_y + angle_y.value) / 360 * (3.1459);
+                group.rotation.z = (preset_angle_z + angle_z.value) / 360 * (3.1459);
 
-            renderer.render( scene, camera );
+                renderer.render( scene, camera );
             };
         </script>
     </body>
