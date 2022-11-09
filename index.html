@@ -8,13 +8,27 @@
         </style>
     </head>
     <body>
-        <div class="slidecontainer">
-            <input type="range" min="0" max="360" value="0" class="slider" id="slider_angle_x">
-            <output id="slider_x_label">0</output>
-            <input type="range" min="0" max="360" value="0" class="slider" id="slider_angle_y">
-            <output id="slider_y_label">0</output>
-            <input type="range" min="0" max="360" value="0" class="slider" id="slider_angle_z">
-            <output id="slider_z_label">0</output>
+        <div style="display: flex;">
+            <div style="width: 300px;">
+                x_rotation:
+                <input type="range" min="-180" max="180" value="0" class="slider" id="slider_angle_x">
+                <output id="slider_x_label">0</output>
+            </div>
+            <div style="width: 300px;">
+                y_rotation:
+                <input type="range" min="-180" max="180" value="0" class="slider" id="slider_angle_y">
+                <output id="slider_y_label">0</output>
+            </div>
+            <div style="width: 300px;">
+                z_rotation:
+                <input type="range" min="-180" max="180" value="0" class="slider" id="slider_angle_z">
+                <output id="slider_z_label">0</output>
+            </div>
+            <div style="width: 300px;">
+                camera distance:
+                <input type="range" min="1" max="100" value="10" class="slider" id="camera_distance">
+                <output id="camera_distance_label">10</output>
+            </div>
         </div>
 
         <script src="js/three.js"></script>
@@ -34,100 +48,106 @@
             angle_z.oninput = function() {
                 slider_z_label.innerHTML = this.value;
             }
+            var camera_distance = document.getElementById("camera_distance");
+            var camera_distance_label = document.getElementById("camera_distance_label");
+            camera_distance.oninput = function() {
+                camera_distance_label.innerHTML = this.value;
+            }
 
             const camera = new THREE.PerspectiveCamera( 70, window.innerWidth / window.innerHeight, 0.00000000001, 100000 );
-            camera.lookAt(0, 0, 0);
-            camera.position.z = 15;
 
             const scene = new THREE.Scene();
             scene.background = new THREE.Color( 0xffffff );
+            const fog_color = 0xFFFFFF;
+            const fog_density = 0.5;
+            scene.fog = new THREE.Fog(fog_color, fog_density);
 
             const renderer = new THREE.WebGLRenderer({alpha: true, antialias: true});
             renderer.setSize( window.innerWidth, window.innerHeight );
             renderer.setAnimationLoop( animation );
             document.body.appendChild( renderer.domElement );
+            renderer.setClearColor( 0x000000, 0 );
 
-            let cols = 15;
-            let rows = 2;
-            let depth = 6;
+            let cols = 6;
+            let rows = 3;
+            let depth = 2;
 
-            cube_dim = 0.4
+            let cube_dim = 0.5
 
             const cube_geometry = new THREE.BoxGeometry( cube_dim, cube_dim, cube_dim );
-            const cube_material = new THREE.MeshMatcapMaterial({transparent: true, opacity: 0.9});
-            let cubes = [];
+            const cube_material = new THREE.MeshMatcapMaterial({color: 0x8EC3B0, transparent: true, opacity: 0.975});
 
             var sub_group = new THREE.Group();
 
             // Cubes
             for (let c = 0; c < cols; c++) {
-                cubes.push([])
                 for (let r = 0; r < rows; r++) {
-                    cubes[c].push([])
                     for (let d = 0; d < depth; d++) {
                         const cube = new THREE.Mesh( cube_geometry, cube_material );
                         cube.translateX( - cols / 2 + c + cube_dim);
                         cube.translateY( - rows / 2 + r + cube_dim);
                         cube.translateZ( - depth / 2 + d + cube_dim);
-                        cubes[c][r].push(cube);
                         sub_group.add( cube );
                     }
                 }
             }
 
             // Sides
-            const thickness = 0.1;
-            const reduction = 0.25;
-            const distance = 0.25;
+            const thickness = 0.01;
+            const reduction = 0.5;
+            const distance = 0.05;
+            const side_material = new THREE.MeshMatcapMaterial({color: 0xDEF5E5, transparent: true, opacity: 0.1});
 
             const side_x_geometry = new THREE.BoxGeometry( thickness, rows - reduction, depth - reduction);
-            const side_x_material = new THREE.MeshMatcapMaterial({transparent: true, opacity: 0.1});
-            const side_x_1 = new THREE.Mesh( side_x_geometry, side_x_material );
+            const side_x_1 = new THREE.Mesh( side_x_geometry, side_material );
             side_x_1.translateX(-(cols + distance) / 2);
             sub_group.add( side_x_1 );
-            const side_x_2 = new THREE.Mesh( side_x_geometry, side_x_material );
+            const side_x_2 = new THREE.Mesh( side_x_geometry, side_material );
             side_x_2.translateX((cols + distance) / 2);
             sub_group.add( side_x_2 );
             const side_y_geometry = new THREE.BoxGeometry( cols - reduction, thickness, depth - reduction);
-            const side_y_material = new THREE.MeshMatcapMaterial({transparent: true, opacity: 0.1});
-            const side_y_1 = new THREE.Mesh( side_y_geometry, side_y_material );
+            const side_y_1 = new THREE.Mesh( side_y_geometry, side_material );
             side_y_1.translateY(-(rows + distance) / 2);
             sub_group.add( side_y_1 );
-            const side_y_2 = new THREE.Mesh( side_y_geometry, side_y_material );
+            const side_y_2 = new THREE.Mesh( side_y_geometry, side_material );
             side_y_2.translateY((rows + distance) / 2);
             sub_group.add( side_y_2 );
             const side_z_geometry = new THREE.BoxGeometry( cols - reduction, rows - reduction, thickness);
-            const side_z_material = new THREE.MeshMatcapMaterial({transparent: true, opacity: 0.1});
-            const side_z_1 = new THREE.Mesh( side_z_geometry, side_z_material );
+            const side_z_1 = new THREE.Mesh( side_z_geometry, side_material );
             side_z_1.translateZ(-(depth + distance) / 2);
             sub_group.add( side_z_1 );
-            const side_z_2 = new THREE.Mesh( side_z_geometry, side_z_material );
+            const side_z_2 = new THREE.Mesh( side_z_geometry, side_material );
             side_z_2.translateZ((depth + distance) / 2);
             sub_group.add( side_z_2 );
 
             // Multiply sub_group
             var group = new THREE.Group();
-            for ( var i = -0.5; i < 0; i ++ ) {
-                var mesh = sub_group.clone();
-                mesh.position.set( 0, i * (rows + 5), 0 );
-                group.add( mesh );
+            for ( var r = -0.5; r < 1; r = r + 1 ) {
+                for ( var c = -0.5; c < 1; c = c + 1) {
+                    for ( var d = -0.5; d < 1; d = d + 1) {
+                        var mesh = sub_group.clone();
+                        mesh.position.set( c * (cols + 1), r * (rows + 1), d * (depth + 1) );
+                        group.add( mesh );
+                    }
+                }
             }
-            group.add(sub_group);
 
             scene.add(group);
 
             // Rotate
-            preset_angle_x = 2 // 60
+            preset_angle_x = 0 // 60
             preset_angle_y = 0 // 0
             preset_angle_z = 0 // 250
 
             function animation( time ) {
-                group.rotation.x = (preset_angle_x + angle_x.value) / 360 * (3.1459);
-                group.rotation.y = (preset_angle_y + angle_y.value) / 360 * (3.1459);
-                group.rotation.z = (preset_angle_z + angle_z.value) / 360 * (3.1459);
+                group.rotation.x = (preset_angle_x + parseInt(angle_x.value)) / 360 * (2 * 3.1459);
+                group.rotation.y = (preset_angle_y + parseInt(angle_y.value)) / 360 * (2 * 3.1459);
+                group.rotation.z = (preset_angle_z + parseInt(angle_z.value)) / 360 * (2 * 3.1459);
+
+                camera.position.z = parseInt(camera_distance.value);
 
                 renderer.render( scene, camera );
-            };
+            }
         </script>
     </body>
 </html>
