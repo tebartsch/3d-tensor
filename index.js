@@ -5,12 +5,12 @@ import { OrbitControls } from "three/addons/controls/OrbitControls.js";
 
 // 3D-Object Parameters
 let cube_dim = 0.5
-let cols = 6;
+let cols = 8;
 let rows = 2;
 let depth = 2;
 
 const camera = new THREE.PerspectiveCamera( 70, window.innerWidth / window.innerHeight, 0.00000000001, 100000 );
-camera.position.z = 12;
+camera.position.z = 14;
 
 const scene = new THREE.Scene();
 scene.background = new THREE.Color( 0xffffff );
@@ -69,7 +69,7 @@ sub_group.add(surrounding_box_edges)*/
 var group = new THREE.Group();
 for ( var r = -0.5; r < 1; r = r + 1 ) {
     for ( var c = -0.5; c < 1; c = c + 1) {
-        for ( var d = -0.5; d < 1; d = d + 1) {
+        for ( var d = -0.5; d < 2; d = d + 1) {
             var mesh = sub_group.clone();
             mesh.position.set( c * (cols + 1), r * (rows + 1), d * (depth + 1) );
             group.add( mesh );
@@ -79,8 +79,8 @@ for ( var r = -0.5; r < 1; r = r + 1 ) {
 scene.add(group);
 
 // Rotate
-const preset_angle_x = 28
-const preset_angle_y = -17
+const preset_angle_x = 16
+const preset_angle_y = -5
 const preset_angle_z = 0
 
 group.rotation.x = preset_angle_x / 360 * (2 * 3.1459);
