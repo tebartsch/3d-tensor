@@ -1,0 +1,29 @@
+{
+  "name": "3d-tensor",
+  "version": "1.0.0",
+  "description": "",
+  "private": true,
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "build": "webpack --config=webpack.config.js --mode=development",
+    "serve": "webpack serve"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/tilmann-bartsch/3d-tensor.git"
+  },
+  "author": "Tilmann Bartsch",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/tilmann-bartsch/3d-tensor/issues"
+  },
+  "homepage": "https://github.com/tilmann-bartsch/3d-tensor#readme",
+  "devDependencies": {
+    "@types/three": "^0.146.0",
+    "html-webpack-plugin": "^5.5.0",
+    "three": "^0.146.0",
+    "webpack": "^5.74.0",
+    "webpack-cli": "^4.10.0",
+    "webpack-dev-server": "^4.11.1"
+  }
+}
